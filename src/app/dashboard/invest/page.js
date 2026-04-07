@@ -6,9 +6,10 @@ import { FaBitcoin } from 'react-icons/fa'
 import { FiUpload, FiCheckCircle, FiInfo } from 'react-icons/fi' // Cleaning up other icons if needed, but I'll stick to fixing Bitcoin first.
 
 const plans = [
-  { id: 'starter', name: 'Starter', range: '$100 – $999', returns: '5–8%/mo', color: '#818cf8' },
-  { id: 'growth', name: 'Growth', range: '$1,000 – $9,999', returns: '10–15%/mo', color: '#3b82f6' },
-  { id: 'elite', name: 'Elite', range: '$10,000+', returns: '18–25%/mo', color: '#00c896' },
+  { id: 'basic', name: 'Basic Plan', range: '$150 – $999', returns: '70% Daily for 7 Days', color: '#818cf8' },
+  { id: 'professional', name: 'Professional Plan', range: '$1,000 – $4,999', returns: '75% Daily for 7 Days', color: '#3b82f6' },
+  { id: 'gold', name: 'Gold Plan', range: '$5,000 – $10,000', returns: '80% Daily for 7 Days', color: '#00c896' },
+  { id: 'diamond', name: 'Diamond Plan', range: '$10,000 – $20,000', returns: '85% Daily for 7 Days', color: '#f43f5e' },
 ]
 
 const paymentMethods = ['Bitcoin (BTC)', 'USDT (TRC20)', 'USDT (ERC20)', 'Bank Transfer']
@@ -40,7 +41,7 @@ export default function InvestPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!plan) { toast.error('Please select an investment plan.'); return }
-    if (!amount || isNaN(amount) || Number(amount) < 100) { toast.error('Enter a valid amount (min. $100).'); return }
+    if (!amount || isNaN(amount) || Number(amount) < 150) { toast.error('Enter a valid amount (min. $150).'); return }
     if (!method) { toast.error('Please select a payment method.'); return }
     if (!file) { toast.error('Please upload a payment screenshot.'); return }
 
@@ -123,7 +124,7 @@ export default function InvestPage() {
                 className="input-dark"
                 type="number"
                 placeholder="e.g. 500"
-                min="100"
+                min="150"
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
               />

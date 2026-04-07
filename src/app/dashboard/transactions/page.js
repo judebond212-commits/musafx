@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { getSession } from '@/lib/session'
 import { HiExternalLink, HiClipboardList } from 'react-icons/hi'
 import Link from 'next/link'
+import ImageModal from '@/components/ImageModal'
 
 export default async function TransactionsPage() {
   const session = await getSession()
@@ -83,10 +84,7 @@ export default async function TransactionsPage() {
                     <td style={{ padding: '14px 16px', color: '#777', textTransform: 'capitalize', whiteSpace: 'nowrap' }}>{tx.paymentMethod}</td>
                     <td style={{ padding: '14px 16px' }}>
                       {tx.paymentfor === 'investment' && tx.screenshot ? (
-                        <a href={tx.screenshot} target="_blank" rel="noopener noreferrer"
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#3b82f6', fontSize: '12px', textDecoration: 'none', fontWeight: '500' }}>
-                          View <HiExternalLink size={12} />
-                        </a>
+                        <ImageModal src={tx.screenshot} />
                       ) : (
                         <span style={{ color: '#333', fontSize: '12px' }}>—</span>
                       )}

@@ -5,8 +5,8 @@ import toast from 'react-hot-toast'
 import { HiUsers, HiClipboardList, HiLogout, HiShieldCheck, HiTrendingUp } from 'react-icons/hi'
 
 const navItems = [
-  { icon: HiUsers, label: 'Users', href: '/admin/dashboard' },
-  { icon: HiClipboardList, label: 'Transactions', href: '/admin/dashboard/transactions' },
+  { icon: HiUsers, label: 'Users', href: '/admin/dashboard/users' },
+  { icon: HiClipboardList, label: 'Transactions', href: '/admin/dashboard/transaction' },
 ]
 
 export default function AdminSidebar() {
@@ -21,7 +21,15 @@ export default function AdminSidebar() {
 
   return (
     <>
-      <aside style={{ width: '210px', minHeight: '100vh', background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', padding: '24px 0', position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 100 }} className="hidden md:flex">
+      <style>{`
+        .admin-desktop-sidebar { display: none !important; }
+        .admin-mobile-sidebar { display: flex !important; }
+        @media (min-width: 768px) {
+          .admin-desktop-sidebar { display: flex !important; }
+          .admin-mobile-sidebar { display: none !important; }
+        }
+      `}</style>
+      <aside style={{ width: '210px', minHeight: '100vh', background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', padding: '24px 0', position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 100 }} className="admin-desktop-sidebar">
         <div style={{ padding: '0 18px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
             <img src="/media/logo.PNG" alt="MusaFX" style={{ height: '28px', width: 'auto', display: 'block' }} />
@@ -49,7 +57,7 @@ export default function AdminSidebar() {
           </button>
         </div>
       </aside>
-      <nav style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.08)', zIndex: 100, padding: '8px 0' }} className="flex md:hidden">
+      <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#0a0a0a', borderTop: '1px solid rgba(255,255,255,0.08)', zIndex: 100, padding: '8px 0' }} className="admin-mobile-sidebar">
         {navItems.map(({ icon: Icon, label, href }) => {
           const active = pathname === href
           return (
