@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { TELEGRAM_URL } from '@/lib/telegram'
 import { HiMail, HiPhone, HiLocationMarker, HiChevronDown, HiChevronUp } from 'react-icons/hi'
 import { FiSend } from 'react-icons/fi'
 
@@ -72,16 +73,24 @@ export default function SupportPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {[
                 { icon: HiMail, label: 'Email', val: 'support@musafx.com' },
-                { icon: HiPhone, label: 'Telegram', val: '@musafx_support' },
+                { icon: HiPhone, label: 'Telegram', val: '@Themusafx', href: TELEGRAM_URL },
                 { icon: HiLocationMarker, label: 'Response Time', val: '< 4 hours (business days)' },
-              ].map(({ icon: Icon, label, val }) => (
+              ].map(({ icon: Icon, label, val, href }) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Icon size={18} color="#3b82f6" />
                   </div>
                   <div>
                     <div style={{ fontSize: '12px', color: '#555', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '600', marginBottom: '2px' }}>{label}</div>
-                    <div style={{ fontSize: '14px', color: '#ccc' }}>{val}</div>
+                    <div style={{ fontSize: '14px', color: '#ccc' }}>
+                      {href ? (
+                        <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'none' }}>
+                          {val}
+                        </a>
+                      ) : (
+                        val
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

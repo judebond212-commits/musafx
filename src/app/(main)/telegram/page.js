@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { FaTelegram } from 'react-icons/fa'
+import { TELEGRAM_URL } from '@/lib/telegram'
 import { HiBell, HiLightningBolt, HiUsers, HiChartBar, HiChat, HiClock } from 'react-icons/hi'
 import { FiArrowRight } from 'react-icons/fi'
 
@@ -51,7 +52,7 @@ export default function TelegramPage() {
           </p>
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <a
-              href={process.env.NEXT_PUBLIC_TELEGRAM_URL || 'https://t.me/musafx'}
+              href={TELEGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -124,7 +125,7 @@ export default function TelegramPage() {
               Click below to instantly join our Telegram community and start receiving live FX signals today.
             </p>
             <a
-              href={process.env.NEXT_PUBLIC_TELEGRAM_URL || 'https://t.me/musafx'}
+              href={TELEGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
               style={{

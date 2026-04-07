@@ -1,5 +1,7 @@
 'use client'
 
+import { TELEGRAM_URL } from '@/lib/telegram'
+
 function RobotIcon()  { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M9 11V7a3 3 0 0 1 6 0v4"/><circle cx="9" cy="16" r="1" fill="white"/><circle cx="15" cy="16" r="1" fill="white"/><path d="M12 2v3"/></svg> }
 function ChartIcon()  { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg> }
 function EyeIcon()    { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> }
@@ -70,6 +72,27 @@ export default function HomePage() {
         .cta-outline:hover { border-color:rgba(34,211,238,0.4); }
         .plan-btn:hover { opacity:0.85; }
         .broker-btn:hover { opacity:0.8; }
+        /* AI strip (below hero) — mobile */
+        .ai-strip { padding: 70px 24px 60px; }
+        .ai-strip-inner { max-width: 720px; margin-left: auto; margin-right: auto; }
+        .ai-strip-quote { max-width: 34em; margin-left: auto; margin-right: auto; padding: 0 4px; }
+        @media (max-width: 768px) {
+          .ai-strip { padding: 44px 16px 40px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+          .ai-strip-inner { max-width: 100%; }
+          .ai-strip-quote { font-size: 12px !important; line-height: 1.65 !important; margin-bottom: 24px !important; }
+          .ai-strip-h2 { letter-spacing: 0.02em !important; line-height: 1.05 !important; }
+          .ai-strip-tag { font-size: 11px !important; letter-spacing: 0.08em !important; }
+          .ai-strip-sub { font-size: 12px !important; letter-spacing: 0.06em !important; }
+        }
+        @media (max-width: 380px) {
+          .ai-strip { padding-top: 36px; padding-bottom: 32px; }
+          .ai-strip-h2 { font-size: clamp(22px, 9vw, 40px) !important; }
+        }
+        /* Features (follows AI strip) — tighten on mobile */
+        @media (max-width: 768px) {
+          .feat-section { padding: 40px 16px 56px !important; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+          .feat-col-left, .feat-col-right { padding-right: 0 !important; padding-left: 0 !important; gap: 26px !important; }
+        }
       `}</style>
 
       <div style={{ background: '#0a0a0a', color: '#fff', fontFamily: "'Poppins', sans-serif", overflowX: 'hidden' }}>
@@ -97,21 +120,23 @@ export default function HomePage() {
         </section>
 
         {/* ── AI STRIP ── */}
-        <div style={{ background: '#000', padding: '70px 24px 60px', textAlign: 'center' }}>
-          <p style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '0.1em', color: '#fff', marginBottom: '10px' }}>POWERED by AI.</p>
-          <p style={{ color: '#aaa', fontSize: '13px', fontStyle: 'italic', marginBottom: '32px' }}>&ldquo;This isn't just a product, it's a platform for the future.&rdquo;</p>
-          <h2 style={{ fontFamily: ORBITRON, fontSize: 'clamp(28px,6vw,54px)', fontWeight: '900', letterSpacing: '0.04em', marginBottom: '12px', lineHeight: 1 }}>
-            <span style={{ color: '#fff' }}>CHOPPA </span>
-            <span style={{ color: '#ef4444' }}>PRO</span>
-          </h2>
-          <p style={{ color: '#aaa', letterSpacing: '0.1em', fontSize: '13px', marginTop: '0' }}>trading solution<span style={{ color: CYAN }}>|</span></p>
+        <div className="ai-strip" style={{ background: '#000', textAlign: 'center' }}>
+          <div className="ai-strip-inner">
+            <p className="ai-strip-tag" style={{ fontSize: '13px', fontWeight: '700', letterSpacing: '0.1em', color: '#fff', marginBottom: '10px' }}>POWERED by AI.</p>
+            <p className="ai-strip-quote" style={{ color: '#aaa', fontSize: '13px', fontStyle: 'italic', marginBottom: '32px', lineHeight: 1.6 }}>&ldquo;This isn't just a product, it's a platform for the future.&rdquo;</p>
+            <h2 className="ai-strip-h2" style={{ fontFamily: ORBITRON, fontSize: 'clamp(28px,6vw,54px)', fontWeight: '900', letterSpacing: '0.04em', marginBottom: '12px', lineHeight: 1.05, wordBreak: 'break-word' }}>
+              <span style={{ color: '#fff' }}>CHOPPA </span>
+              <span style={{ color: '#ef4444' }}>PRO</span>
+            </h2>
+            <p className="ai-strip-sub" style={{ color: '#aaa', letterSpacing: '0.1em', fontSize: '13px', marginTop: '0', marginBottom: 0 }}>trading solution<span style={{ color: CYAN }}>|</span></p>
+          </div>
         </div>
 
         {/* ── FEATURES ── */}
-        <section style={{ background: '#000', padding: '60px 20px 80px' }}>
+        <section className="feat-section" style={{ background: '#000', padding: '60px 20px 80px' }}>
           <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '0', alignItems: 'center' }} className="feat-outer">
             {/* Left col */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', paddingRight: '32px' }}>
+            <div className="feat-col-left" style={{ display: 'flex', flexDirection: 'column', gap: '36px', paddingRight: '32px' }}>
               {[0, 1, 2].map(i => {
                 const Icon = features[i].Icon
                 return (
@@ -135,7 +160,7 @@ export default function HomePage() {
               </div>
             </div>
             {/* Right col */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', paddingLeft: '32px' }}>
+            <div className="feat-col-right" style={{ display: 'flex', flexDirection: 'column', gap: '36px', paddingLeft: '32px' }}>
               {[3, 4, 5].map(i => {
                 const Icon = features[i].Icon
                 return (
@@ -209,7 +234,7 @@ export default function HomePage() {
           <div style={{ position: 'relative', zIndex: 10 }}>
             <h2 style={{ fontFamily: ORBITRON, fontSize: 'clamp(34px,9vw,80px)', fontWeight: '900', color: '#fff', marginBottom: '14px', lineHeight: 1 }}>STAY INFORMED</h2>
             <p style={{ color: '#777', fontSize: '13px', marginBottom: '36px' }}>Don't miss out on the action!!</p>
-            <a href="https://t.me/musafx" className="broker-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: CYAN, color: '#000', fontWeight: '700', fontSize: '13px', padding: '14px 32px', borderRadius: '4px', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', transition: 'opacity 0.2s' }}>
+            <a href={TELEGRAM_URL} className="broker-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: CYAN, color: '#000', fontWeight: '700', fontSize: '13px', padding: '14px 32px', borderRadius: '4px', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', transition: 'opacity 0.2s' }}>
               <TelegramIcon /> FREE CHANNEL
             </a>
           </div>
