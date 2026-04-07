@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getUserCurrency } from '@/lib/currency'
+import { sendFundedEmail } from '@/lib/mailer'
 
 export async function GET() {
   try {
@@ -36,7 +38,66 @@ export async function PATCH(request) {
       return NextResponse.json({ error: 'Missing parameters.' }, { status: 400 })
     }
 
-    // Only allow updating certain fields for security
+    // Special handling for the fundUser composite action
+    if (field === 'fundUser') {
+      const { plan, amount } = value
+      if (!plan || !amount || isNaN(amount)) {
+        return NextResponse.json({ error: 'Invalid funding parameters.' }, { status: 400 })
+      }
+
+      // 1. Get the current user profile (for email, country, and current balance)
+      const { data: user, error: userError } = await supabaseAdmin
+        .from('accounts')
+        .select('*')
+        .eq('"userID"', userID)
+        .single()
+      
+      if (userError || !user) throw new Error('User not found')
+
+      const newBalance = (parseFloat(user.investmentAmount) || 0) + amount
+
+      // 2. Perform DB update
+      const { error: updateError } = await supabaseAdmin
+        .from('accounts')
+        .update({
+          investmentAmount: newBalance,
+          investmentPlan: plan,
+          investmentDate: new Date().toISOString()
+        })
+        .eq('"userID"', userID)
+
+      if (updateError) throw updateError
+
+      // 3. Create a transaction record
+      try {
+        await supabaseAdmin
+          .from('transactions')
+          .insert([{
+            userID: userID,
+            email: user.Email,
+            paymentfor: 'investment',
+            amount: amount,
+            paymentMethod: 'Admin Funding',
+            plan: plan,
+            confirmed: 'true'
+          }])
+      } catch (txError) {
+        console.error('Failed to create transaction record:', txError)
+      }
+
+      // 4. Process localized email notification
+      try {
+        const localData = await getUserCurrency(amount, user.Country)
+        await sendFundedEmail(user.Email, user.FName || 'User', localData.amount, localData.symbol, plan.toUpperCase())
+      } catch (mailError) {
+        console.error('Failed to send funding email:', mailError)
+        // Proceed with success anyway since DB is updated
+      }
+
+      return NextResponse.json({ success: true })
+    }
+
+    // Only allow updating certain individual fields for security
     const allowedFields = ['AccountEnabled', 'InvestMentEnabled', 'investmentAmount']
     if (!allowedFields.includes(field)) {
       return NextResponse.json({ error: 'Invalid field.' }, { status: 400 })

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { HiUser, HiLockClosed, HiEye, HiEyeOff } from 'react-icons/hi'
+import { countryData } from '@/lib/countrydata'
 
 export default function SettingsPage() {
   const [profile, setProfile] = useState({ FName: '', LName: '', Country: '', ST: '', AD: '' })
@@ -152,12 +153,18 @@ export default function SettingsPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               <div>
                 <label style={labelStyle}>Country</label>
-                <input style={inputStyle} type="text" value={profile.Country}
+                <select 
+                  style={{ ...inputStyle, cursor: 'pointer', appearance: 'none' }}
+                  value={profile.Country}
                   onChange={e => setProfile({ ...profile, Country: e.target.value })}
-                  placeholder="e.g. Nigeria"
                   onFocus={e => e.target.style.borderColor = '#3b82f6'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-                />
+                >
+                  <option value="" disabled>Select your country</option>
+                  {countryData.map(c => (
+                    <option key={c.isoAlpha3 || c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label style={labelStyle}>State / Region</label>

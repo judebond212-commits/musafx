@@ -14,28 +14,28 @@ function Toggle({ value, onChange, loading }) {
 
 function UserModal({ user, onClose, onUpdateField }) {
   const [fundAmount, setFundAmount] = useState('')
+  const [investPlan, setInvestPlan] = useState('basic')
   const [loading, setLoading] = useState(false)
 
   if (!user) return null
 
-  async function handleFund(action) {
+  async function handleFund() {
     const amount = parseFloat(fundAmount)
     if (isNaN(amount) || amount <= 0) {
       toast.error('Enter a valid positive amount.')
       return
     }
 
-    const currentAmount = parseFloat(user.investmentAmount) || 0
-    let newAmount = currentAmount
-    if (action === 'add') newAmount += amount
-    if (action === 'deduct') newAmount = Math.max(0, newAmount - amount)
-
     setLoading(true)
     try {
-      await onUpdateField(user.userID, 'investmentAmount', newAmount)
-      toast.success(`Successfully ${action === 'add' ? 'added' : 'deducted'} $${amount.toLocaleString()}.`)
+      await onUpdateField(user.userID, 'fundUser', { plan: investPlan, amount })
+      toast.success(`Successfully funded the user.`)
       setFundAmount('')
-      user.investmentAmount = newAmount; // optimistic UI update within modal
+      
+      // Optimistic UI fallback
+      const currentAmount = parseFloat(user.investmentAmount) || 0
+      user.investmentAmount = currentAmount + amount
+      user.investmentPlan = investPlan
     } catch (err) {
       // toast error handled in parent
     } finally {
@@ -60,28 +60,35 @@ function UserModal({ user, onClose, onUpdateField }) {
         
         {/* Funding Input */}
         <div style={{ marginBottom: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '16px' }}>
-          <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '10px', color: '#ccc' }}>Manage Funds</div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input 
-              type="number" 
-              className="input-dark" 
-              placeholder="Amount ($)..." 
-              value={fundAmount} 
-              onChange={e => setFundAmount(e.target.value)} 
-              style={{ flex: 1, padding: '10px 14px', fontSize: '14px' }} 
-            />
-            <button 
-              onClick={() => handleFund('deduct')}
-              disabled={loading}
-              style={{ background: 'rgba(255,85,85,0.1)', color: '#ff5555', border: '1px solid rgba(255,85,85,0.2)', borderRadius: '8px', padding: '0 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600', fontSize: '12px' }}>
-              <HiMinus /> Deduct
-            </button>
-            <button 
-              onClick={() => handleFund('add')}
-              disabled={loading}
-              style={{ background: 'rgba(0,200,150,0.1)', color: '#00c896', border: '1px solid rgba(0,200,150,0.2)', borderRadius: '8px', padding: '0 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600', fontSize: '12px' }}>
-              <HiPlus /> Add
-            </button>
+          <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '10px', color: '#ccc' }}>Initiate Investment Feature</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <select
+              className="input-dark"
+              value={investPlan}
+              onChange={(e) => setInvestPlan(e.target.value)}
+              style={{ padding: '10px 14px', fontSize: '14px', cursor: 'pointer' }}
+            >
+              <option value="basic">Basic Plan</option>
+              <option value="professional">Professional Plan</option>
+              <option value="gold">Gold Plan</option>
+              <option value="diamond">Diamond Plan</option>
+            </select>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input 
+                type="number" 
+                className="input-dark" 
+                placeholder="Amount Paid (USD Equivalent)..." 
+                value={fundAmount} 
+                onChange={e => setFundAmount(e.target.value)} 
+                style={{ flex: 1, padding: '10px 14px', fontSize: '14px' }} 
+              />
+              <button 
+                onClick={handleFund}
+                disabled={loading}
+                style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '8px', padding: '0 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '700', fontSize: '13px' }}>
+                <HiPlus size={16} /> Fund User
+              </button>
+            </div>
           </div>
         </div>
 
@@ -123,19 +130,25 @@ export default function UsersPage() {
     setToggling(prev => ({ ...prev, [key]: true }))
     const newValue = currentValue === 'true' ? 'false' : (currentValue === 'false' ? 'true' : currentValue)
     
-    // For investment amount, pass actual value.
+    // Support complex object updates like funding array
     const finalValue = (field === 'investmentAmount') ? currentValue : newValue
 
     try {
       const res = await fetch('/api/admin/users', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userID, field, value: finalValue }),
+        body: JSON.stringify({ userID, field, value: (field === 'fundUser' ? currentValue : finalValue) }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setUsers(prev => prev.map(u => u.userID === userID ? { ...u, [field]: finalValue } : u))
-      if (field !== 'investmentAmount') toast.success(`Updated successfully.`)
+      
+      if (field === 'fundUser') {
+        setUsers(prev => prev.map(u => u.userID === userID ? { ...u, investmentAmount: (parseFloat(u.investmentAmount) || 0) + currentValue.amount, investmentPlan: currentValue.plan } : u))
+      } else {
+        setUsers(prev => prev.map(u => u.userID === userID ? { ...u, [field]: finalValue } : u))
+      }
+      
+      if (field !== 'investmentAmount' && field !== 'fundUser') toast.success(`Updated successfully.`)
     } catch (err) { 
       toast.error(err.message) 
       throw err // rethrow for UserModal

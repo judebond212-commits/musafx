@@ -70,3 +70,25 @@ export async function sendSupportEmail({ name, email, message }) {
     `,
   })
 }
+
+export async function sendFundedEmail(to, firstName, localAmount, localSymbol, planName) {
+  return transporter.sendMail({
+    from: process.env.SMTP_FROM,
+    to,
+    subject: 'MusaFX – Investment Successfully Initiated',
+    html: `
+      <div style="background:#0f0f0f;color:#fff;font-family:sans-serif;padding:40px;max-width:600px;margin:auto;border-radius:12px;">
+        <h1 style="color:#00c896;font-size:24px;margin-bottom:8px;">Investment Funded</h1>
+        <p style="color:#aaa;font-size:14px;margin-bottom:24px;">Your administrator has confirmed your deposit</p>
+        <p>Hi <strong>${firstName}</strong>,</p>
+        <p>Great news! An amount of <strong>${localSymbol}${localAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong> has been successfully credited to your investment account.</p>
+        <p>Your <strong>${planName}</strong> has been actively initiated. You can securely track your daily returns directly from your user dashboard.</p>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://musafx.com'}/dashboard"
+           style="display:inline-block;background:linear-gradient(135deg,#00c896,#059669);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin:20px 0;">
+          View Your Dashboard
+        </a>
+        <p style="color:#888;font-size:12px;margin-top:32px;">© ${new Date().getFullYear()} MusaFX. All rights reserved.</p>
+      </div>
+    `,
+  })
+}
