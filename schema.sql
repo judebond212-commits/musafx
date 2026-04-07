@@ -85,6 +85,23 @@ CREATE INDEX IF NOT EXISTS idx_transactions_confirmed ON transactions ("confirme
 
 
 -- ============================================================
+--  TABLE: password_reset_tokens
+--  One-time tokens for forgot-password email links.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  id              UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+  "userID"        UUID          NOT NULL REFERENCES accounts("userID") ON DELETE CASCADE,
+  "tokenHash"     TEXT          NOT NULL,
+  "expiresAt"     TIMESTAMPTZ   NOT NULL,
+  "usedAt"        TIMESTAMPTZ,
+  "createdAt"     TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_password_reset_token_hash ON password_reset_tokens ("tokenHash");
+CREATE INDEX IF NOT EXISTS idx_password_reset_user ON password_reset_tokens ("userID");
+
+
+-- ============================================================
 --  AUTO-UPDATE updatedAt trigger (shared helper)
 -- ============================================================
 CREATE OR REPLACE FUNCTION update_updated_at()
@@ -110,8 +127,9 @@ CREATE OR REPLACE TRIGGER trg_transactions_updated_at
 --  uses supabaseAdmin (service role) so these policies guard
 --  any direct anon/client connections.
 -- ============================================================
-ALTER TABLE accounts     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE accounts              ENABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE password_reset_tokens ENABLE ROW LEVEL SECURITY;
 
 -- Deny all anon access (service role bypasses this automatically)
 CREATE POLICY "deny_anon_accounts"
@@ -119,6 +137,9 @@ CREATE POLICY "deny_anon_accounts"
 
 CREATE POLICY "deny_anon_transactions"
   ON transactions FOR ALL TO anon USING (false);
+
+CREATE POLICY "deny_anon_password_reset_tokens"
+  ON password_reset_tokens FOR ALL TO anon USING (false);
 
 
 -- ============================================================

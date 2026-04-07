@@ -31,6 +31,29 @@ export async function sendWelcomeEmail(to, firstName) {
   })
 }
 
+export async function sendPasswordResetEmail(to, firstName, resetUrl) {
+  return transporter.sendMail({
+    from: process.env.SMTP_FROM,
+    to,
+    subject: 'Reset your MusaFX password',
+    html: `
+      <div style="background:#0f0f0f;color:#fff;font-family:sans-serif;padding:40px;max-width:600px;margin:auto;border-radius:12px;">
+        <h1 style="color:#3b82f6;font-size:24px;margin-bottom:8px;">Password reset</h1>
+        <p style="color:#aaa;font-size:14px;margin-bottom:24px;">MusaFX account security</p>
+        <p>Hi <strong>${firstName || 'there'}</strong>,</p>
+        <p>We received a request to reset your password. Click the button below to choose a new password. This link expires in <strong>1 hour</strong>.</p>
+        <a href="${resetUrl}"
+           style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin:20px 0;">
+          Reset password
+        </a>
+        <p style="color:#888;font-size:13px;line-height:1.6;">If you didn’t ask for this, you can ignore this email. Your password will stay the same.</p>
+        <p style="color:#555;font-size:12px;word-break:break-all;margin-top:16px;">${resetUrl}</p>
+        <p style="color:#888;font-size:12px;margin-top:32px;">© ${new Date().getFullYear()} MusaFX. All rights reserved.</p>
+      </div>
+    `,
+  })
+}
+
 export async function sendSupportEmail({ name, email, message }) {
   return transporter.sendMail({
     from: process.env.SMTP_FROM,
