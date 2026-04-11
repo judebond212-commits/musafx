@@ -1,9 +1,15 @@
 'use client'
-import { HiTrendingUp, HiCurrencyDollar, HiCalendar, HiClock, HiExclamation, HiCheckCircle } from 'react-icons/hi'
+import { useState } from 'react'
+import { HiTrendingUp, HiCurrencyDollar, HiCalendar, HiClock, HiExclamation, HiCheckCircle, HiArrowRight, HiChat, HiX } from 'react-icons/hi'
 import { basePlans, calculateCurrentBalance } from '@/lib/investment'
+import { TELEGRAM_URL } from '@/lib/telegram'
 import Link from 'next/link'
 
 export default function InvestForm({ userPlan, startDate, initialAmount, isEnabled, hasHistory }) {
+  const [showForm, setShowForm] = useState(false)
+  const [amount, setAmount] = useState('')
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+
   const plan = basePlans.find(p => p.id.toLowerCase() === (userPlan || '').toLowerCase())
   const currentBalance = calculateCurrentBalance(initialAmount, userPlan, startDate)
   const earnings = currentBalance - initialAmount
@@ -19,22 +25,111 @@ export default function InvestForm({ userPlan, startDate, initialAmount, isEnabl
         </div>
         <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px' }}>No Active Investments</h2>
         <p style={{ color: '#555', fontSize: '15px', maxWidth: '400px', margin: '0 auto 32px', lineHeight: '1.6' }}>
-          You currently do not have any running investments. Please contact our support team or your account manager to get started.
+          You currently do not have any running investments. Start your journey with MusaFX today and watch your capital grow.
         </p>
-        <Link href="/support" 
-          style={{ 
-            display: 'inline-block', 
-            padding: '12px 32px', 
-            textDecoration: 'none',
-            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-            color: '#fff',
-            borderRadius: '8px',
-            fontWeight: '600',
-            fontSize: '15px'
-          }}
-        >
-          Contact Support
-        </Link>
+
+        {!showForm ? (
+          <button 
+            onClick={() => setShowForm(true)}
+            style={{ 
+              display: 'inline-block', 
+              padding: '14px 40px', 
+              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+              color: '#fff',
+              borderRadius: '8px',
+              fontWeight: '700',
+              fontSize: '15px',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 10px 25px rgba(59, 130, 246, 0.2)'
+            }}
+          >
+            Start Investing
+          </button>
+        ) : (
+          <div style={{ maxWidth: '320px', margin: '0 auto', textAlign: 'left', animation: 'fadeIn 0.3s ease-out' }}>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: '#555', textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.1em' }}>Desired Investment amount (USD)</label>
+            <div style={{ position: 'relative', marginBottom: '18px' }}>
+               <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#333', fontWeight: '800', fontSize: '14px' }}>$</span>
+               <input 
+                 type="number"
+                 className="input-dark"
+                 placeholder="Enter amount e.g. 1500"
+                 value={amount}
+                 onChange={(e) => setAmount(e.target.value)}
+                 style={{ 
+                   paddingLeft: '32px',
+                   height: '50px',
+                   fontSize: '15px',
+                   background: '#0a0a0a',
+                   border: '1px solid rgba(255,255,255,0.08)'
+                 }}
+               />
+            </div>
+            <button 
+              onClick={() => setShowPaymentModal(true)}
+              style={{ 
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                padding: '14px', 
+                background: '#00c896',
+                color: '#fff',
+                borderRadius: '8px',
+                fontWeight: '800',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '15px',
+                boxShadow: '0 10px 20px rgba(0, 200, 150, 0.15)'
+              }}
+            >
+              Proceed to Payment <HiArrowRight size={18} />
+            </button>
+            <button 
+               onClick={() => setShowForm(false)}
+               style={{ width: '100%', background: 'none', border: 'none', color: '#444', fontSize: '12px', marginTop: '16px', cursor: 'pointer', fontWeight: '600' }}
+            >
+               Go back
+            </button>
+          </div>
+        )}
+
+        {/* Payment Instructions Modal */}
+        {showPaymentModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }} onClick={() => setShowPaymentModal(false)}>
+            <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '40px', maxWidth: '440px', width: '100%', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', position: 'relative' }} onClick={e => e.stopPropagation()}>
+              <button onClick={() => setShowPaymentModal(false)} style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', color: '#444', cursor: 'pointer' }}><HiX size={20} /></button>
+              
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                <HiChat size={32} color="#3b82f6" />
+              </div>
+              <h3 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '16px', color: '#fff' }}>Contact support</h3>
+              <p style={{ color: '#888', fontSize: '15px', lineHeight: '1.6', marginBottom: '32px' }}>
+                Please contact customer support via <a href={TELEGRAM_URL} target="_blank" rel="noreferrer" style={{ color: '#3b82f6', textDecoration: 'none', fontWeight: '700', borderBottom: '1px solid rgba(59, 130, 246, 0.3)' }}>Telegram</a> or email to receive the official Musafx payment details.
+              </p>
+              
+              <button 
+                onClick={() => setShowPaymentModal(false)}
+                style={{ 
+                  width: '100%', 
+                  padding: '14px', 
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', 
+                  color: '#fff', 
+                  borderRadius: '12px', 
+                  border: 'none',
+                  fontWeight: '700', 
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 20px rgba(59, 130, 246, 0.15)'
+                }}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -56,6 +151,13 @@ export default function InvestForm({ userPlan, startDate, initialAmount, isEnabl
           Overview of your automated trading account and performance.
         </p>
       </div>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
 
       {/* Main Single Card */}
       <div style={{ 

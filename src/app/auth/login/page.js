@@ -46,6 +46,27 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59, 130, 246, 0.06), transparent)' }}>
       <div style={{ width: '100%', maxWidth: '420px' }}>
+        
+        {/* Back to Store */}
+        <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+          <Link href="/autopilotpro" style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            color: '#666', 
+            fontSize: '13px', 
+            textDecoration: 'none',
+            padding: '8px 16px',
+            borderRadius: '100px',
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            transition: 'all 0.2s',
+            fontWeight: '600'
+          }}>
+             <span>← Back to store</span>
+          </Link>
+        </div>
+
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>

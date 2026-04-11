@@ -1,5 +1,5 @@
 'use client'
-
+import { useRouter } from 'next/navigation'
 import { TELEGRAM_URL } from '@/lib/telegram'
 
 function RobotIcon()  { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M9 11V7a3 3 0 0 1 6 0v4"/><circle cx="9" cy="16" r="1" fill="white"/><circle cx="15" cy="16" r="1" fill="white"/><path d="M12 2v3"/></svg> }
@@ -53,6 +53,13 @@ const SYNE = "'Poppins', sans-serif"
 const CYAN = '#22d3ee'
 
 export default function HomePage() {
+  const router = useRouter()
+
+  const handleAddToCart = (plan) => {
+    localStorage.setItem('selectedPlan', JSON.stringify(plan))
+    router.push('/cart')
+  }
+
   return (
     <>
       <style>{`
@@ -217,7 +224,29 @@ export default function HomePage() {
                         </li>
                       ))}
                     </ul>
-                    <a href="/auth/register" className="plan-btn" style={{ display: 'block', textAlign: 'center', background: CYAN, color: '#000', fontWeight: '700', fontSize: '12px', padding: '14px', borderRadius: '2px', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.15em', transition: 'opacity 0.2s' }}>{plan.cta}</a>
+                    <button 
+                      onClick={() => handleAddToCart(plan)}
+                      className="plan-btn" 
+                      style={{ 
+                        display: 'block', 
+                        width: '100%',
+                        textAlign: 'center', 
+                        background: CYAN, 
+                        color: '#000', 
+                        fontWeight: '700', 
+                        fontSize: '12px', 
+                        padding: '14px', 
+                        borderRadius: '2px', 
+                        border: 'none',
+                        cursor: 'pointer',
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.15em', 
+                        transition: 'opacity 0.2s',
+                        fontFamily: 'inherit'
+                      }}
+                    >
+                      {plan.cta}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -232,7 +261,7 @@ export default function HomePage() {
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom,#0a0a0a 0%,transparent 20%,transparent 80%,#0a0a0a 100%)' }} />
           </div>
           <div style={{ position: 'relative', zIndex: 10 }}>
-            <h2 style={{ fontFamily: ORBITRON, fontSize: 'clamp(34px,9vw,80px)', fontWeight: '900', color: '#fff', marginBottom: '14px', lineHeight: 1 }}>STAY INFORMED</h2>
+            <h2 style={{ fontFamily: ORBITRON, fontSize: 'clamp(34px,9vw,80px)', fontWeight: '900', color: '#fff', marginBottom: '14px', lineHeight: 1 }}>Watch Results</h2>
             <p style={{ color: '#777', fontSize: '13px', marginBottom: '36px' }}>Don't miss out on the action!!</p>
             <a href={TELEGRAM_URL} className="broker-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: CYAN, color: '#000', fontWeight: '700', fontSize: '13px', padding: '14px 32px', borderRadius: '4px', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', transition: 'opacity 0.2s' }}>
               <TelegramIcon /> FREE CHANNEL
