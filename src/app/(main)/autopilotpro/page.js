@@ -39,7 +39,6 @@ export default function AutoPilotProPage() {
     <div style={{ background: '#0a0a0a', color: '#fff', fontFamily: "'Poppins', sans-serif", minHeight: '100vh', padding: '100px 20px 80px' }}>
       <style>{`
         @keyframes fadeIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         .plan-card:hover { transform: translateY(-10px); border-color: ${CYAN}44 !important; }
         .plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-width: 1200px; margin: 0 auto; }
         @media(max-width: 768px) {
@@ -48,7 +47,7 @@ export default function AutoPilotProPage() {
       `}</style>
 
       {/* Header Area */}
-      <div className="fade-in" style={{ textAlign: 'center', marginBottom: '80px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '80px' }} data-aos="zoom-in">
         <p style={{ color: CYAN, fontWeight: '700', letterSpacing: '0.28em', fontSize: '12px', textTransform: 'uppercase', marginBottom: '16px' }}>CHOPPA SOLUTIONS</p>
         <h1 style={{ fontFamily: ORBITRON, fontSize: 'clamp(32px, 8vw, 64px)', fontWeight: '900', letterSpacing: '-0.02em', marginBottom: '20px' }}>
           AUTOPILOT <span style={{ color: CYAN }}>PRO</span> SYSTEMS
@@ -61,16 +60,15 @@ export default function AutoPilotProPage() {
       {/* Pricing Grid */}
       <div className="plan-grid">
         {plans.map((p, i) => (
-          <div key={i} className="fade-in plan-card" style={{
+          <div key={i} className="plan-card" style={{
             background: '#111',
             border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: '16px',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            transition: 'all 0.3s ease',
-            animationDelay: `${i * 0.1}s`
-          }}>
+            transition: 'all 0.3s ease'
+          }} data-aos="fade-up" data-aos-delay={i * 100}>
             {/* Top Image Section */}
             <div style={{ height: '200px', position: 'relative' }}>
               <img src={p.img} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} />
@@ -134,7 +132,7 @@ export default function AutoPilotProPage() {
       </div>
 
       {/* Footer Note */}
-      <div className="fade-in" style={{ textAlign: 'center', marginTop: '64px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '40px' }}>
+      <div style={{ textAlign: 'center', marginTop: '64px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '40px' }} data-aos="fade-up">
         <p style={{ color: '#555', fontSize: '13px' }}>
           *Payments are processed securely via our official Telegram support. One-off payment for lifetime access.
         </p>

@@ -19,7 +19,7 @@ export default function InvestForm({ userPlan, startDate, initialAmount, isEnabl
   // Show empty state only if they have NO current plan AND no history of investments
   if (!userPlan && !hasHistory) {
     return (
-      <div style={{ textAlign: 'center', padding: '80px 20px', background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px' }}>
+      <div style={{ textAlign: 'center', padding: '80px 20px', background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px' }} data-aos="fade-up">
         <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
           <HiTrendingUp size={32} color="#3b82f6" />
         </div>
@@ -167,7 +167,7 @@ export default function InvestForm({ userPlan, startDate, initialAmount, isEnabl
         overflow: 'hidden',
         boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
         marginBottom: '40px'
-      }}>
+      }} data-aos="fade-up">
         {/* Card Header */}
         <div style={{ 
           padding: '32px', 

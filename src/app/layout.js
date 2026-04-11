@@ -1,6 +1,7 @@
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { Poppins } from 'next/font/google'
+import AOSInit from '@/components/AOSInit'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
       <head>
       </head>
       <body className={`noise ${poppins.className}`} style={{ fontFamily: 'var(--font-poppins), sans-serif' }}>
+        <AOSInit />
         {children}
         <Toaster
           position="top-right"

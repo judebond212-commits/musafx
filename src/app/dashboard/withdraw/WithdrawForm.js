@@ -79,7 +79,7 @@ export default function WithdrawForm({ user, balance, isMature, remainingDays, p
 
   if (!isMature) {
     return (
-      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '60px 40px', textAlign: 'center', maxWidth: '800px' }}>
+      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '60px 40px', textAlign: 'center', maxWidth: '800px' }} data-aos="fade-up">
         <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
           <HiLockClosed size={36} color="#3b82f6" />
         </div>
@@ -98,7 +98,7 @@ export default function WithdrawForm({ user, balance, isMature, remainingDays, p
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '32px', maxWidth: '900px' }}>
       {/* Form Section */}
-      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '32px' }}>
+      <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '32px' }} data-aos="fade-right">
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           <div style={{ padding: '20px', background: 'rgba(0,200,150,0.05)', border: '1px solid rgba(0,200,150,0.15)', borderRadius: '12px', marginBottom: '8px' }}>
@@ -157,7 +157,7 @@ export default function WithdrawForm({ user, balance, isMature, remainingDays, p
 
       {/* Info Section */}
       <div>
-        <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '24px' }}>
+        <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '24px' }} data-aos="fade-left">
           <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', color: '#3b82f6' }}>
             <HiInformationCircle size={20} /> Withdrawal Policy
           </h3>
@@ -168,7 +168,7 @@ export default function WithdrawForm({ user, balance, isMature, remainingDays, p
               { icon: '📅', title: 'Schedule', desc: 'Processing takes 24–48 hours for external verification.' },
               { icon: '🛡️', title: 'Security', desc: 'Transfers are only made to bank accounts matching your registration name.' },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', gap: '14px', paddingBottom: '16px', borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+              <div key={i} style={{ display: 'flex', gap: '14px', paddingBottom: '16px', borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none' }} data-aos="fade-left" data-aos-delay={i * 100}>
                 <span style={{ fontSize: '20px', flexShrink: 0 }}>{item.icon}</span>
                 <div>
                   <div style={{ fontSize: '13px', fontWeight: '700', color: '#eee', marginBottom: '3px' }}>{item.title}</div>
