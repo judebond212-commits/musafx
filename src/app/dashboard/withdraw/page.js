@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getSession } from '@/lib/session'
-import { basePlans } from '@/lib/investment'
+import { basePlans, calculateCurrentBalance } from '@/lib/investment'
 import WithdrawForm from './WithdrawForm'
 
 export default async function WithdrawPage() {
@@ -18,6 +18,9 @@ export default async function WithdrawPage() {
 
   const plan = basePlans.find(p => p.id.toLowerCase() === (user.investmentPlan || '').toLowerCase())
   
+  // Calculate current balance (Amount to withdraw)
+  const balance = calculateCurrentBalance(Number(user.investmentAmount) || 0, user.investmentPlan, user.investmentDate)
+
   let isMature = false
   let remainingDays = 0
 
@@ -29,10 +32,6 @@ export default async function WithdrawPage() {
     
     isMature = elapsedDays >= plan.duration
     remainingDays = Math.max(0, plan.duration - elapsedDays)
-  } else if (!user.investmentPlan || user.investmentAmount == 0) {
-    // No active investment, so no withdrawal from earnings possible
-    isMature = false
-    remainingDays = 'N/A'
   }
 
   return (
@@ -44,6 +43,7 @@ export default async function WithdrawPage() {
 
       <WithdrawForm 
         user={user} 
+        balance={balance}
         isMature={isMature} 
         remainingDays={remainingDays} 
         plan={plan} 

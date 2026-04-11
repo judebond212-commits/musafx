@@ -1,5 +1,5 @@
 'use client'
-import { TELEGRAM_URL } from '@/lib/telegram'
+import { useRouter } from 'next/navigation'
 import { FiCheck } from 'react-icons/fi'
 
 const plans = [
@@ -7,21 +7,18 @@ const plans = [
     tag: 'PROMO: 40% OFF', tagBg: '#ef4444', tagColor: '#fff',
     title: 'AUTO PILOT', price: '$180', period: '/oneoff',
     img: '/media/Auto%20Pilot.webp',
-    cta: 'BUY NOW',
     features: ['AutoPilotPro system', 'Free membership channel', 'Access to 500+ close guides', "Access to Choppa's Telegram community", '24/7 customer support', 'Free currency and forex real-gold', 'Trade in NFTs'],
   },
   {
     tag: 'FEATURED', tagBg: '#22d3ee', tagColor: '#000',
     title: 'CHOPPA PRO', price: '$499', period: '/oneoff',
     img: '/media/CHOPPA%20PRO.jpg',
-    cta: 'GET STARTED',
     features: ['A pre-set trades on your signal files', 'Free membership channel', 'Multi-info trader', "Access to Choppa's telegram community", '24/7 customer support', 'Free signal membership', "All access to Choppa's trading group", 'Supply currency & Billion real-gold', 'Trade in NFTs'],
   },
   {
     tag: 'LIMITED', tagBg: '#ef4444', tagColor: '#fff',
     title: 'CHOPPA S', price: '$300', period: '/oneoff',
     img: '/media/CHOPPA%20S.png',
-    cta: 'GET STARTED',
     features: ['Monitored on sample file', 'Multi-S with channel', 'Access to 500+ close guides', "Access to Choppa's telegram community", '24/7 customer support', 'Free signal membership', 'Supply currency & Billion real-gold'],
   },
 ]
@@ -31,6 +28,13 @@ const ORBITRON = "'Poppins', sans-serif"
 const SYNE = "'Poppins', sans-serif"
 
 export default function AutoPilotProPage() {
+  const router = useRouter()
+
+  const handleAddToCart = (plan) => {
+    localStorage.setItem('selectedPlan', JSON.stringify(plan))
+    router.push('/cart')
+  }
+
   return (
     <div style={{ background: '#0a0a0a', color: '#fff', fontFamily: "'Poppins', sans-serif", minHeight: '100vh', padding: '100px 20px 80px' }}>
       <style>{`
@@ -99,23 +103,31 @@ export default function AutoPilotProPage() {
                 ))}
               </ul>
 
-              <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" style={{
-                display: 'block',
-                textAlign: 'center',
-                background: CYAN,
-                color: '#000',
-                fontWeight: '800',
-                fontSize: '14px',
-                padding: '16px',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                textTransform: 'uppercase',
-                letterSpacing: '0.15em',
-                boxShadow: `0 4px 20px ${CYAN}33`,
-                transition: 'transform 0.2s'
-              }}>
-                {p.cta}
-              </a>
+              <button
+                onClick={() => handleAddToCart(p)}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'center',
+                  background: CYAN,
+                  color: '#000',
+                  fontWeight: '800',
+                  fontSize: '14px',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.15em',
+                  boxShadow: `0 4px 20px ${CYAN}33`,
+                  transition: 'transform 0.2s',
+                  fontFamily: 'inherit'
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                ADD TO CART
+              </button>
             </div>
           </div>
         ))}
