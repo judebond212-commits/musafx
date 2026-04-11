@@ -17,10 +17,10 @@ export async function POST(request) {
       )
     }
 
-    const { FName, LName, Email, PWord } = await request.json()
+    const { FName, LName, Email, PWord, Country, Phone, AD } = await request.json()
 
     // Validate
-    if (!FName || !LName || !Email || !PWord) {
+    if (!FName || !LName || !Email || !PWord || !Country || !Phone || !AD) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 })
     }
     if (PWord.length < 8) {
@@ -56,9 +56,9 @@ export async function POST(request) {
         investmentPlan: '',
         InvestMentEnabled: 'false',
         firstBillingEnabled: 'false',
-        Country: '',
-        ST: '',
-        AD: '',
+        Country: Country || '',
+        ST: Phone || '', // Mapping Phone to State column
+        AD: AD || '',    // Address column
         AccountEnabled: 'true',
       }])
       .select()

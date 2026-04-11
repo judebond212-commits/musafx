@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { HiUsers, HiSearch, HiEye, HiX, HiPlus, HiMinus } from 'react-icons/hi'
 
+import { basePlans } from '@/lib/investment'
+
 function Toggle({ value, onChange, loading }) {
   const isTrue = value === 'true'
   return (
@@ -14,7 +16,7 @@ function Toggle({ value, onChange, loading }) {
 
 function UserModal({ user, onClose, onUpdateField }) {
   const [fundAmount, setFundAmount] = useState('')
-  const [investPlan, setInvestPlan] = useState('basic')
+  const [investPlan, setInvestPlan] = useState(basePlans[0]?.id || '')
   const [loading, setLoading] = useState(false)
 
   if (!user) return null
@@ -45,7 +47,7 @@ function UserModal({ user, onClose, onUpdateField }) {
 
   const fields = [
     ['User ID', user.userID], ['Email', user.Email], ['First Name', user.FName], ['Last Name', user.LName],
-    ['Country', user.Country || '—'], ['State', user.ST || '—'], ['Address', user.AD || '—'],
+    ['Country', user.Country || '—'], ['Phone (ST)', user.ST || '—'], ['Address', user.AD || '—'],
     ['Investment Plan', user.investmentPlan || '—'], ['Investment Amount', user.investmentAmount ? `$${parseFloat(user.investmentAmount).toLocaleString()}` : '$0'],
     ['Investment Date', user.investmentDate || '—'], ['Investment Enabled', user.InvestMentEnabled], ['Account Enabled', user.AccountEnabled],
   ]
@@ -68,10 +70,9 @@ function UserModal({ user, onClose, onUpdateField }) {
               onChange={(e) => setInvestPlan(e.target.value)}
               style={{ padding: '10px 14px', fontSize: '14px', cursor: 'pointer' }}
             >
-              <option value="basic">Basic Plan</option>
-              <option value="professional">Professional Plan</option>
-              <option value="gold">Gold Plan</option>
-              <option value="diamond">Diamond Plan</option>
+              {basePlans.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
             </select>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input 

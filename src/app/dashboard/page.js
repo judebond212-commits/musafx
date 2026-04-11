@@ -3,7 +3,6 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { getSession } from '@/lib/session'
 import { HiTrendingUp, HiCurrencyDollar, HiCalendar, HiShieldCheck, HiClock } from 'react-icons/hi'
 import Link from 'next/link'
-import { getUserCurrency } from '@/lib/currency'
 import { calculateCurrentBalance } from '@/lib/investment'
 
 function StatusBadge({ status }) {
@@ -43,15 +42,14 @@ export default async function DashboardHome() {
   const initialUSD = Number(user.investmentAmount) || 0
   const dynamicUSD = calculateCurrentBalance(initialUSD, user.investmentPlan, user.investmentDate)
 
-  // Fetch local currency exchange rate (based on 1 USD)
-  const userRate = await getUserCurrency(1, user.Country)
-  const localBalanceValue = dynamicUSD * userRate.amount
+  // Display values in USD
+  const localBalanceValue = dynamicUSD
 
   const stats = [
     {
       icon: HiCurrencyDollar,
       label: 'Investment Balance',
-      value: `${userRate.symbol}${localBalanceValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+      value: `$${localBalanceValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
       sub: user.investmentPlan || 'No active plan',
       accent: '#3b82f6',
     },
@@ -144,7 +142,7 @@ export default async function DashboardHome() {
                       <span style={{ textTransform: 'capitalize', color: tx.paymentfor === 'investment' ? '#00c896' : '#3b82f6' }}>{tx.paymentfor}</span>
                     </td>
                     <td style={{ padding: '12px', fontWeight: '600' }}>
-                      {userRate.symbol}{(tx.amount * userRate.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      ${tx.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </td>
                     <td style={{ padding: '12px', color: '#777', textTransform: 'capitalize' }}>{tx.paymentMethod}</td>
                     <td style={{ padding: '12px' }}>

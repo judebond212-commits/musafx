@@ -11,17 +11,14 @@ import { basePlans } from '@/lib/investment'
 const paymentMethods = ['Bank Transfer']
 
 const walletInfo = {
-  'Bitcoin (BTC)': { address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh', label: 'BTC Address' },
-  'USDT (TRC20)': { address: 'TRx7NHqjeKQxGTCi8q8ZY4pL5cBkJAfjqg', label: 'USDT TRC20 Address' },
-  'USDT (ERC20)': { address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', label: 'USDT ERC20 Address' },
   'Bank Transfer': { address: 'Contact support for bank details', label: 'Bank Details' },
 }
 
-export default function InvestForm({ userRate }) {
+export default function InvestForm() {
   const router = useRouter()
   const [plan, setPlan] = useState('')
   const [amount, setAmount] = useState('')
-  const [method, setMethod] = useState('')
+  const [method, setMethod] = useState('Bank Transfer')
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -40,11 +37,11 @@ export default function InvestForm({ userRate }) {
     if (!plan) { toast.error('Please select an investment plan.'); return }
     
     // Convert back to USD implicitly for validation and storing
-    const usdEquivalent = Number(amount) / userRate.amount;
+    const usdEquivalent = Number(amount);
     const selectedPlan = basePlans.find(p => p.id === plan);
     
     if (!amount || isNaN(amount) || usdEquivalent < selectedPlan.min || usdEquivalent > selectedPlan.max) { 
-      toast.error(`Please enter an amount between ${userRate.symbol}${(selectedPlan.min * userRate.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })} and ${userRate.symbol}${(selectedPlan.max * userRate.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })} for the ${selectedPlan.name}.`); 
+      toast.error(`Please enter an amount between $${selectedPlan.min.toLocaleString()} and $${selectedPlan.max.toLocaleString()} for the ${selectedPlan.name}.`); 
       return 
     }
     if (!method) { toast.error('Please select a payment method.'); return }
@@ -114,7 +111,7 @@ export default function InvestForm({ userRate }) {
                       <div>
                         <div style={{ fontWeight: '600', fontSize: '14px', color: plan === p.id ? p.color : '#ddd' }}>{p.name}</div>
                         <div style={{ fontSize: '12px', color: '#555', marginTop: '1px' }}>
-                          {userRate.symbol}{(p.min * userRate.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })} – {userRate.symbol}{(p.max * userRate.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                          ${p.min.toLocaleString()} – $${p.max.toLocaleString()}
                         </div>
                       </div>
                     </div>
@@ -126,11 +123,11 @@ export default function InvestForm({ userRate }) {
 
             {/* Amount */}
             <div>
-              <label style={{ display: 'block', color: '#888', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Amount ({userRate.code})</label>
+              <label style={{ display: 'block', color: '#888', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Amount (USD)</label>
               <input
                 className="input-dark"
                 type="number"
-                placeholder={`e.g. ${(500 * userRate.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                placeholder={`e.g. 500`}
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
               />

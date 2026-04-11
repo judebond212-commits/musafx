@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getAdminSession } from '@/lib/session'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getUserCurrency } from '@/lib/currency'
 import { sendFundedEmail } from '@/lib/mailer'
 
 export async function GET() {
@@ -85,10 +84,9 @@ export async function PATCH(request) {
         console.error('Failed to create transaction record:', txError)
       }
 
-      // 4. Process localized email notification
+      // 4. Process email notification
       try {
-        const localData = await getUserCurrency(amount, user.Country)
-        await sendFundedEmail(user.Email, user.FName || 'User', localData.amount, localData.symbol, plan.toUpperCase())
+        await sendFundedEmail(user.Email, user.FName || 'User', amount, '$', plan.toUpperCase())
       } catch (mailError) {
         console.error('Failed to send funding email:', mailError)
         // Proceed with success anyway since DB is updated

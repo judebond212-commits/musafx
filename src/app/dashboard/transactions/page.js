@@ -5,7 +5,6 @@ import { getSession } from '@/lib/session'
 import { HiExternalLink, HiClipboardList } from 'react-icons/hi'
 import Link from 'next/link'
 import ImageModal from '@/components/ImageModal'
-import { getUserCurrency } from '@/lib/currency'
 import { calculateCurrentBalance } from '@/lib/investment'
 
 export default async function TransactionsPage() {
@@ -32,7 +31,6 @@ export default async function TransactionsPage() {
   // Calculate dynamic invested balance (including earnings)
   const currentInvestment = calculateCurrentBalance(totalInvested, user?.investmentPlan, user?.investmentDate)
 
-  const userRate = await getUserCurrency(1, user?.Country)
 
   return (
     <div>
@@ -43,8 +41,8 @@ export default async function TransactionsPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: '14px', marginBottom: '28px' }}>
         {[
-          { label: 'Total Invested', value: `${userRate.symbol}${(currentInvestment * userRate.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}`, color: '#00c896' },
-          { label: 'Total Withdrawn', value: `${userRate.symbol}${(totalWithdrawn * userRate.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}`, color: '#3b82f6' },
+          { label: 'Total Invested', value: `$${currentInvestment.toLocaleString(undefined, { maximumFractionDigits: 2 })}`, color: '#00c896' },
+          { label: 'Total Withdrawn', value: `$${totalWithdrawn.toLocaleString(undefined, { maximumFractionDigits: 2 })}`, color: '#3b82f6' },
           { label: 'Confirmed', value: confirmed, color: '#00c896' },
           { label: 'Pending', value: pending, color: '#3b82f6' },
         ].map(card => (
@@ -94,7 +92,7 @@ export default async function TransactionsPage() {
                       </span>
                     </td>
                     <td style={{ padding: '14px 16px', fontWeight: '700', color: '#fff' }}>
-                      {userRate.symbol}{(tx.amount * userRate.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      ${tx.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </td>
                     <td style={{ padding: '14px 16px', color: '#777', textTransform: 'capitalize', whiteSpace: 'nowrap' }}>{tx.paymentMethod}</td>
                     <td style={{ padding: '14px 16px' }}>
