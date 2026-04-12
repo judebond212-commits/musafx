@@ -133,17 +133,19 @@ export default function UsersPage() {
     fetchUsers()
   }, [])
 
-  async function startMigration() {
-    if (!confirm('This will import all legacy data from SQL files. Users with existing emails will be skipped. Proceed?')) return
-    setMigrating(true)
+  async function startMigration(type) {
+    const label = type === 'users' ? 'User Accounts' : 'Transactions'
+    if (!confirm(`This will import legacy ${label} from SQL files. Proceed?`)) return
+    
+    setMigrating(type)
     setMigrationResult(null)
     try {
-      const res = await fetch('/api/admin/migrate', { method: 'POST' })
+      const res = await fetch(`/api/admin/migrate?type=${type}`, { method: 'POST' })
       const data = await res.json()
       if (data.success) {
-        setMigrationResult(data)
-        toast.success('Migration completed!')
-        fetchUsers()
+        setMigrationResult({ ...data, type })
+        toast.success(`${label} migration completed!`)
+        if (type === 'users') fetchUsers()
       } else {
         throw new Error(data.error)
       }
@@ -216,40 +218,72 @@ export default function UsersPage() {
             <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>Legacy Data Migration</h2>
             <p style={{ fontSize: '13px', color: '#555' }}>Import accounts and transactions from old system SQL files.</p>
           </div>
-          <button 
-            onClick={startMigration} 
-            disabled={migrating}
-            style={{ 
-              background: migrating ? '#222' : '#3b82f6', 
-              color: '#fff', 
-              border: 'none', 
-              borderRadius: '10px', 
-              padding: '12px 24px', 
-              fontWeight: '700', 
-              fontSize: '14px', 
-              cursor: migrating ? 'not-allowed' : 'pointer',
-              boxShadow: migrating ? 'none' : '0 4px 14px rgba(59, 130, 246, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}>
-            {migrating ? 'Migrating Data...' : 'Start Data Migration'}
-            {migrating && <div className="spinner-small" />}
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              onClick={() => startMigration('users')} 
+              disabled={migrating}
+              style={{ 
+                background: migrating === 'users' ? '#222' : 'rgba(255,255,255,0.05)', 
+                color: '#fff', 
+                border: '1px solid rgba(255,255,255,0.08)', 
+                borderRadius: '10px', 
+                padding: '12px 20px', 
+                fontWeight: '700', 
+                fontSize: '13px', 
+                cursor: migrating ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+              {migrating === 'users' ? 'Migrating Users...' : 'Migrate Legacy Users'}
+            </button>
+            <button 
+              onClick={() => startMigration('transactions')} 
+              disabled={migrating}
+              style={{ 
+                background: migrating === 'transactions' ? '#222' : '#3b82f6', 
+                color: '#fff', 
+                border: 'none', 
+                borderRadius: '10px', 
+                padding: '12px 20px', 
+                fontWeight: '700', 
+                fontSize: '13px', 
+                cursor: migrating ? 'not-allowed' : 'pointer',
+                boxShadow: migrating ? 'none' : '0 4px 14px rgba(59, 130, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+              {migrating === 'transactions' ? 'Migrating Trans...' : 'Migrate Legacy Transactions'}
+            </button>
+          </div>
         </div>
 
         {migrationResult && (
           <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
-             {[
-               { label: 'New Users', value: migrationResult.migratedUsers, color: '#00c896' },
-               { label: 'Skipped (Existing)', value: migrationResult.skippedUsers, color: '#555' },
-               { label: 'Transactions', value: migrationResult.migratedTransactions, color: '#3b82f6' },
-             ].map(r => (
-               <div key={r.label} style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '12px' }}>
-                 <div style={{ fontSize: '10px', color: '#444', textTransform: 'uppercase', fontWeight: '800', marginBottom: '4px' }}>{r.label}</div>
-                 <div style={{ fontSize: '18px', fontWeight: '800', color: r.color }}>{r.value}</div>
-               </div>
-             ))}
+             {migrationResult.type === 'users' ? (
+               <>
+                 <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '12px' }}>
+                   <div style={{ fontSize: '10px', color: '#444', textTransform: 'uppercase', fontWeight: '800', marginBottom: '4px' }}>New Users</div>
+                   <div style={{ fontSize: '18px', fontWeight: '800', color: '#00c896' }}>{migrationResult.migratedUsers}</div>
+                 </div>
+                 <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '12px' }}>
+                   <div style={{ fontSize: '10px', color: '#444', textTransform: 'uppercase', fontWeight: '800', marginBottom: '4px' }}>Skipped (Existing)</div>
+                   <div style={{ fontSize: '18px', fontWeight: '800', color: '#555' }}>{migrationResult.skippedUsers}</div>
+                 </div>
+               </>
+             ) : (
+               <>
+                 <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '12px' }}>
+                   <div style={{ fontSize: '10px', color: '#444', textTransform: 'uppercase', fontWeight: '800', marginBottom: '4px' }}>New Transactions</div>
+                   <div style={{ fontSize: '18px', fontWeight: '800', color: '#3b82f6' }}>{migrationResult.migratedTransactions}</div>
+                 </div>
+                 <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '12px' }}>
+                   <div style={{ fontSize: '10px', color: '#444', textTransform: 'uppercase', fontWeight: '800', marginBottom: '4px' }}>Skipped (Invalid/Duplicate)</div>
+                   <div style={{ fontSize: '18px', fontWeight: '800', color: '#555' }}>{migrationResult.skippedTransactions}</div>
+                 </div>
+               </>
+             )}
           </div>
         )}
       </div>

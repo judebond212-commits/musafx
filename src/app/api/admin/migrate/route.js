@@ -5,105 +5,128 @@ import { supabaseAdmin } from '@/lib/supabase'
 import fs from 'fs'
 import path from 'path'
 
-export async function POST() {
+export async function POST(request) {
   try {
     if (!supabaseAdmin) {
       return NextResponse.json({ error: 'Supabase admin not configured.' }, { status: 500 })
     }
 
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get('type') // 'users' or 'transactions'
+
     const migrationsDir = path.join(process.cwd(), 'data-migrations')
     const accountsPath = path.join(migrationsDir, 'accounts.sql')
     const transactionsPath = path.join(migrationsDir, 'transactions.sql')
 
-    let migratedUsersCount = 0
-    let skippedUsersCount = 0
-    let migratedTransactionsCount = 0
+    if (type === 'users') {
+      let migratedUsersCount = 0
+      let skippedUsersCount = 0
 
-    // 1. Process Accounts
-    if (fs.existsSync(accountsPath)) {
-      const accountsSql = fs.readFileSync(accountsPath, 'utf8')
-      const accountRows = parseSql(accountsSql)
+      if (fs.existsSync(accountsPath)) {
+        const accountsSql = fs.readFileSync(accountsPath, 'utf8')
+        const accountRows = parseSql(accountsSql)
 
-      for (const row of accountRows) {
-        // Mapping based on accounts.sql structure:
-        // (userID, Email, FName, LName, PWord, investmentAmount, investmentDate, investmentPlan, InvestMentEnabled, firstBillingEnabled, Country, ST, AD, AccountEnabled)
-        if (row.length < 14) continue
+        for (const row of accountRows) {
+          if (row.length < 14) continue
+          const [_oldId, email, fName, lName, pWord, invAmt, invDate, invPlan, invEnabled, fbEnabled, country, st, ad, accEnabled] = row
 
-        const [
-          _oldId, email, fName, lName, pWord, 
-          invAmt, invDate, invPlan, invEnabled, 
-          fbEnabled, country, st, ad, accEnabled
-        ] = row
-
-        // Check if email exists
-        const { data: existing } = await supabaseAdmin
-          .from('accounts')
-          .select('Email')
-          .eq('Email', email)
-          .single()
-
-        if (!existing) {
-          // Insert new user
-          // Important: We mark them with Migrated: true (using AD or ST if we don't have a column)
-          // Actually, let's assume we can add a column or just detect by 'PWord' not being bcrypt
-          const { error } = await supabaseAdmin
+          const { data: existing } = await supabaseAdmin
             .from('accounts')
-            .insert([{
-              Email: email,
-              FName: fName,
-              LName: lName,
-              PWord: pWord, // Legacy password
-              investmentAmount: parseInt(invAmt) || 0,
-              investmentDate: invDate === '0000-00-00' ? null : invDate,
-              investmentPlan: invPlan,
-              InvestMentEnabled: (invEnabled || 'FALSE').toLowerCase(),
-              firstBillingEnabled: (fbEnabled || 'FALSE').toLowerCase(),
-              Country: country,
-              ST: st,
-              AD: ad + ' [MIGRATED]', // Tagging as migrated in the address field as a fallback
-              AccountEnabled: (accEnabled || 'TRUE').toLowerCase(),
-            }])
+            .select('Email')
+            .eq('Email', email)
+            .single()
 
-          if (!error) migratedUsersCount++
-        } else {
-          skippedUsersCount++
+          if (!existing) {
+            const { error } = await supabaseAdmin
+              .from('accounts')
+              .insert([{
+                Email: email,
+                FName: fName,
+                LName: lName,
+                PWord: pWord,
+                investmentAmount: parseInt(invAmt) || 0,
+                investmentDate: invDate === '0000-00-00' ? null : invDate,
+                investmentPlan: invPlan,
+                InvestMentEnabled: (invEnabled || 'FALSE').toLowerCase(),
+                firstBillingEnabled: (fbEnabled || 'FALSE').toLowerCase(),
+                Country: country,
+                ST: st,
+                AD: ad + ' [MIGRATED]',
+                AccountEnabled: (accEnabled || 'TRUE').toLowerCase(),
+              }])
+            if (!error) migratedUsersCount++
+          } else {
+            skippedUsersCount++
+          }
         }
       }
+      return NextResponse.json({ success: true, migratedUsers: migratedUsersCount, skippedUsers: skippedUsersCount })
     }
 
-    // 2. Process Transactions
-    if (fs.existsSync(transactionsPath)) {
-      const transactionsSql = fs.readFileSync(transactionsPath, 'utf8')
-      const transactionRows = parseSql(transactionsSql)
+    if (type === 'transactions') {
+      let migratedCount = 0
+      let skippedCount = 0
 
-      for (const row of transactionRows) {
-        // (email, paymentfor, transactionDate, amount, screenshot, confirmed, paymentMethod)
-        if (row.length < 7) continue
+      if (fs.existsSync(transactionsPath)) {
+        const transactionsSql = fs.readFileSync(transactionsPath, 'utf8')
+        const transactionRows = parseSql(transactionsSql)
 
-        const [email, paymentfor, date, amount, _screenshot, confirmed, method] = row
+        // Pre-fetch all users to map emails to IDs
+        const { data: allUsers } = await supabaseAdmin.from('accounts').select('"userID", "Email"')
+        const userMap = new Map((allUsers || []).map(u => [u.Email, u.userID]))
 
-        // We skip screenshots as they are raw blobs
-        const { error } = await supabaseAdmin
-          .from('transactions')
-          .insert([{
-            email,
-            paymentfor,
-            transactionDate: date,
-            amount: parseInt(amount) || 0,
-            confirmed: confirmed,
-            paymentMethod: method
-          }])
-        
-        if (!error) migratedTransactionsCount++
+        for (const row of transactionRows) {
+          if (row.length < 7) continue
+          const [email, paymentfor, date, amount, _screenshot, confirmed, method] = row
+
+          const userID = userMap.get(email)
+          if (!userID) {
+            skippedCount++
+            continue
+          }
+
+          // Check for duplicate (same email, amount, date)
+          const { data: duplicate } = await supabaseAdmin
+            .from('transactions')
+            .select('id')
+            .eq('email', email)
+            .eq('amount', parseInt(amount))
+            .eq('paymentMethod', method)
+            .limit(1)
+            .maybeSingle()
+
+          if (duplicate) {
+            skippedCount++
+            continue
+          }
+
+          // Map values
+          const isWithdrawal = paymentfor.toLowerCase().includes('withdraw')
+          const status = (confirmed.toLowerCase() === 'confirmed' || confirmed.toLowerCase() === 'true') ? 'true' : 'false'
+
+          const { error } = await supabaseAdmin
+            .from('transactions')
+            .insert([{
+              userID,
+              email,
+              paymentfor: isWithdrawal ? 'withdrawal' : 'investment',
+              plan: !isWithdrawal ? paymentfor : '',
+              amount: parseInt(amount) || 0,
+              confirmed: status,
+              paymentMethod: method,
+            }])
+          
+          if (!error) migratedCount++
+          else {
+            console.error('Insert error for', email, error)
+            skippedCount++
+          }
+        }
       }
+      return NextResponse.json({ success: true, migratedTransactions: migratedCount, skippedTransactions: skippedCount })
     }
 
-    return NextResponse.json({
-      success: true,
-      migratedUsers: migratedUsersCount,
-      skippedUsers: skippedUsersCount,
-      migratedTransactions: migratedTransactionsCount
-    })
+    return NextResponse.json({ error: 'Invalid migration type.' }, { status: 400 })
 
   } catch (err) {
     console.error('Migration error:', err)
