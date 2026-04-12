@@ -14,6 +14,9 @@ export const metadata = {
   title: 'MusaFX – Professional FX Investment Platform',
   description: 'Grow your wealth with MusaFX – automated FX trading, real-time signals, and expert investment management.',
   keywords: 'FX investment, forex trading, autopilot trading, MusaFX',
+  icons: {
+    icon: '/logo.ico',
+  },
 }
 
 export default function RootLayout({ children }) {
