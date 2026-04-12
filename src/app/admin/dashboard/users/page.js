@@ -125,6 +125,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [toggling, setToggling] = useState({})
+  const [selectedUser, setSelectedUser] = useState(null)
   const [migrating, setMigrating] = useState(false)
   const [migrationResult, setMigrationResult] = useState(null)
 
