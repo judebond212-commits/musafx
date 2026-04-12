@@ -13,14 +13,14 @@ export default function WithdrawForm({ user, balance, isMature, remainingDays, p
   const email = user?.Email || ''
   const phone = user?.ST || '' // Phone is mapped to 'ST' in this system
 
-  const labelStyle = { 
-    display: 'block', 
-    color: '#888', 
-    fontSize: '11px', 
-    fontWeight: '700', 
-    textTransform: 'uppercase', 
-    letterSpacing: '0.08em', 
-    marginBottom: '8px' 
+  const labelStyle = {
+    display: 'block',
+    color: '#888',
+    fontSize: '11px',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    marginBottom: '8px'
   }
 
   const readOnlyStyle = {
@@ -42,32 +42,32 @@ export default function WithdrawForm({ user, balance, isMature, remainingDays, p
       toast.error(`Withdrawal is locked. Available in ${remainingDays} days.`)
       return
     }
-    if (balance < 10) { 
+    if (balance < 10) {
       toast.error('Your current balance is below the minimum withdrawal amount ($10).')
-      return 
+      return
     }
-    if (!bankInfo.bankName.trim() || !bankInfo.accountNumber.trim()) { 
+    if (!bankInfo.bankName.trim() || !bankInfo.accountNumber.trim()) {
       toast.error('Please provide both Bank Name and Account Number.')
-      return 
+      return
     }
 
     setLoading(true)
     try {
       // Format bank details for the walletAddress storage field
       const formattedDetails = `Bank: ${bankInfo.bankName.trim()} | Account: ${bankInfo.accountNumber.trim()}`
-      
+
       const res = await fetch('/api/dashboard/withdraw', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          amount: balance, 
-          walletAddress: formattedDetails, 
-          paymentMethod: 'Bank Transfer' 
+        body: JSON.stringify({
+          amount: balance,
+          walletAddress: formattedDetails,
+          paymentMethod: 'Bank Transfer'
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Withdrawal request failed.')
-      
+
       toast.success('Your withdrawal request has been submitted for review.')
       router.push('/dashboard/transactions')
     } catch (err) {
@@ -100,9 +100,9 @@ export default function WithdrawForm({ user, balance, isMature, remainingDays, p
       {/* Form Section */}
       <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '32px' }} data-aos="fade-right">
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
+
           <div style={{ padding: '20px', background: 'rgba(0,200,150,0.05)', border: '1px solid rgba(0,200,150,0.15)', borderRadius: '12px', marginBottom: '8px' }}>
-            <label style={{ ...labelStyle, color: '#00c896' }}>Withdrawal Balance (Auto-Calculated)</label>
+            <label style={{ ...labelStyle, color: '#00c896' }}>Withdrawal Balance </label>
             <div style={{ fontSize: '28px', fontWeight: '800', color: '#fff' }}>
               ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
@@ -129,8 +129,8 @@ export default function WithdrawForm({ user, balance, isMature, remainingDays, p
 
           <div>
             <label style={labelStyle}>Destination Bank Name</label>
-            <input 
-              className="input-dark" 
+            <input
+              className="input-dark"
               placeholder="e.g. Chase Bank, Barclays, etc."
               required
               value={bankInfo.bankName}
@@ -140,8 +140,8 @@ export default function WithdrawForm({ user, balance, isMature, remainingDays, p
 
           <div>
             <label style={labelStyle}>Account Number</label>
-            <input 
-              className="input-dark" 
+            <input
+              className="input-dark"
               placeholder="Enter your bank account number"
               required
               value={bankInfo.accountNumber}
