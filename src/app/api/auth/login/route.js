@@ -40,8 +40,23 @@ export async function POST(request) {
     }
 
     // Compare password
-    const valid = await bcrypt.compare(PWord, user.PWord)
+    let valid = false
+    try {
+      valid = await bcrypt.compare(PWord, user.PWord)
+    } catch (e) {
+      // Hash is likely legacy/plain
+    }
+
     if (!valid) {
+      // Legacy Check: Detect if user is from old system and password matches plain text
+      const isMigrated = user.AD?.includes('[MIGRATED]')
+      if (isMigrated && PWord === user.PWord) {
+        return NextResponse.json({ 
+          error: 'Legacy account detected. You must reset your password to continue.', 
+          migrateReset: true,
+          email: Email 
+        }, { status: 403 })
+      }
       return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 })
     }
 

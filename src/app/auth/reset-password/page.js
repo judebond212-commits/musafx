@@ -11,6 +11,8 @@ function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token') || ''
+  const migrateEmail = searchParams.get('email') || ''
+  const isMigrate = searchParams.get('migrate') === 'true'
 
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -20,7 +22,7 @@ function ResetPasswordForm() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!token) {
+    if (!token && !isMigrate) {
       toast.error('Invalid reset link. Request a new one from the forgot password page.')
       return
     }
@@ -35,10 +37,13 @@ function ResetPasswordForm() {
 
     setLoading(true)
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const endpoint = isMigrate ? '/api/auth/migrate-password' : '/api/auth/reset-password'
+      const body = isMigrate ? { email: migrateEmail, password } : { token, password }
+      
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify(body),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Could not reset password.')
@@ -63,13 +68,24 @@ function ResetPasswordForm() {
         </div>
 
         <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '36px' }}>
-          {!token ? (
+          {(!token && !isMigrate) ? (
             <p style={{ color: '#888', fontSize: '14px', textAlign: 'center', margin: 0 }}>
               Missing or invalid link.{' '}
               <Link href="/auth/forgot-password" style={{ color: '#3b82f6', fontWeight: '600' }}>Request a new reset</Link>
             </p>
+          ) : isMigrate && !migrateEmail ? (
+            <p style={{ color: '#888', fontSize: '14px', textAlign: 'center', margin: 0 }}>
+              Email information missing.{' '}
+              <Link href="/auth/login" style={{ color: '#3b82f6', fontWeight: '600' }}>Try logging in again</Link>
+            </p>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              {isMigrate && (
+                <div style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.1)', borderRadius: '8px', padding: '12px', marginBottom: '8px' }}>
+                   <div style={{ fontSize: '10px', color: '#555', textTransform: 'uppercase', fontWeight: '700', marginBottom: '2px' }}>Migrating Account</div>
+                   <div style={{ fontSize: '13px', color: '#aaa' }}>{migrateEmail}</div>
+                </div>
+              )}
               <div>
                 <label style={{ display: 'block', color: '#888', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>New password</label>
                 <div style={{ position: 'relative' }}>

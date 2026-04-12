@@ -33,7 +33,14 @@ export default function LoginPage() {
         body: JSON.stringify({ Email: form.Email, PWord: form.PWord }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Login failed.')
+      if (!res.ok) {
+        if (data.migrateReset) {
+          toast.success('Migrated account detected. Please choose a new password.', { duration: 6000 })
+          router.push(`/auth/reset-password?email=${encodeURIComponent(form.Email)}&migrate=true`)
+          return
+        }
+        throw new Error(data.error || 'Login failed.')
+      }
       toast.success('Successfully logged in!')
       router.push('/dashboard')
     } catch (err) {

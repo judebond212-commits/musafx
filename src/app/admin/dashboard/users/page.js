@@ -125,11 +125,33 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [toggling, setToggling] = useState({})
-  const [selectedUser, setSelectedUser] = useState(null)
+  const [migrating, setMigrating] = useState(false)
+  const [migrationResult, setMigrationResult] = useState(null)
 
   useEffect(() => {
     fetchUsers()
   }, [])
+
+  async function startMigration() {
+    if (!confirm('This will import all legacy data from SQL files. Users with existing emails will be skipped. Proceed?')) return
+    setMigrating(true)
+    setMigrationResult(null)
+    try {
+      const res = await fetch('/api/admin/migrate', { method: 'POST' })
+      const data = await res.json()
+      if (data.success) {
+        setMigrationResult(data)
+        toast.success('Migration completed!')
+        fetchUsers()
+      } else {
+        throw new Error(data.error)
+      }
+    } catch (err) {
+      toast.error(err.message)
+    } finally {
+      setMigrating(false)
+    }
+  }
 
   async function fetchUsers() {
     try {
@@ -184,6 +206,51 @@ export default function UsersPage() {
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: '800', marginBottom: '8px' }}>User Search</h1>
         <p style={{ color: '#555', fontSize: '14px' }}>Lookup accounts by name or email to manage access and funding.</p>
+      </div>
+
+      {/* Migration Tools */}
+      <div style={{ marginBottom: '40px', background: 'rgba(59, 130, 246, 0.03)', border: '1px solid rgba(59, 130, 246, 0.1)', borderRadius: '16px', padding: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>Legacy Data Migration</h2>
+            <p style={{ fontSize: '13px', color: '#555' }}>Import accounts and transactions from old system SQL files.</p>
+          </div>
+          <button 
+            onClick={startMigration} 
+            disabled={migrating}
+            style={{ 
+              background: migrating ? '#222' : '#3b82f6', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: '10px', 
+              padding: '12px 24px', 
+              fontWeight: '700', 
+              fontSize: '14px', 
+              cursor: migrating ? 'not-allowed' : 'pointer',
+              boxShadow: migrating ? 'none' : '0 4px 14px rgba(59, 130, 246, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+            {migrating ? 'Migrating Data...' : 'Start Data Migration'}
+            {migrating && <div className="spinner-small" />}
+          </button>
+        </div>
+
+        {migrationResult && (
+          <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
+             {[
+               { label: 'New Users', value: migrationResult.migratedUsers, color: '#00c896' },
+               { label: 'Skipped (Existing)', value: migrationResult.skippedUsers, color: '#555' },
+               { label: 'Transactions', value: migrationResult.migratedTransactions, color: '#3b82f6' },
+             ].map(r => (
+               <div key={r.label} style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '10px', padding: '12px' }}>
+                 <div style={{ fontSize: '10px', color: '#444', textTransform: 'uppercase', fontWeight: '800', marginBottom: '4px' }}>{r.label}</div>
+                 <div style={{ fontSize: '18px', fontWeight: '800', color: r.color }}>{r.value}</div>
+               </div>
+             ))}
+          </div>
+        )}
       </div>
 
       <UserModal user={selectedUser} onClose={() => setSelectedUser(null)} onUpdateField={handleToggle} />
