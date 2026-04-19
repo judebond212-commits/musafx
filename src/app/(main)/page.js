@@ -263,7 +263,7 @@ export default function HomePage() {
           <div style={{ position: 'relative', zIndex: 10 }}>
             <h2 style={{ fontFamily: ORBITRON, fontSize: 'clamp(34px,9vw,80px)', fontWeight: '900', color: '#fff', marginBottom: '14px', lineHeight: 1 }}>Watch Results</h2>
             <p style={{ color: '#777', fontSize: '13px', marginBottom: '36px' }}>Don't miss out on the action!!</p>
-            <a href={TELEGRAM_URL} className="broker-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: CYAN, color: '#000', fontWeight: '700', fontSize: '13px', padding: '14px 32px', borderRadius: '4px', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', transition: 'opacity 0.2s' }}>
+            <a href={"https://t.me/+voei-i3K66owODk0"} className="broker-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: CYAN, color: '#000', fontWeight: '700', fontSize: '13px', padding: '14px 32px', borderRadius: '4px', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em', transition: 'opacity 0.2s' }}>
               <TelegramIcon /> FREE CHANNEL
             </a>
           </div>
