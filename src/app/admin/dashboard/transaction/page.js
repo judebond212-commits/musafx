@@ -123,7 +123,7 @@ export default function TransactionsPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '860px' }}>
               <thead>
                 <tr style={{ background: '#0d0d0d', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  {['#', 'Email', 'Type', 'Date', 'Amount', 'Method', 'Proof/Wallet', 'Status', 'Actions'].map(h => (
+                  {['#', 'User Info', 'Type', 'Date', 'Amount', 'Method', 'Proof/Wallet', 'Status', 'Actions'].map(h => (
                     <th key={h} style={{ textAlign: 'left', padding: '12px 14px', color: '#555', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
@@ -132,7 +132,10 @@ export default function TransactionsPage() {
                 {filtered.map((tx, i) => (
                   <tr key={tx.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
                     <td style={{ padding: '13px 14px', color: '#444', fontSize: '12px' }}>{tx.id?.slice(0,6)}...</td>
-                    <td style={{ padding: '13px 14px', color: '#888', fontSize: '12px', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.email}</td>
+                    <td style={{ padding: '13px 14px', color: '#888', fontSize: '12px', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {tx.accounts ? <div style={{ color: '#ccc', fontWeight: '500', marginBottom: '2px' }}>{tx.accounts.FName} {tx.accounts.LName}</div> : null}
+                      <div style={{ fontSize: '11px' }}>{tx.email}</div>
+                    </td>
                     <td style={{ padding: '13px 14px' }}>
                       <span style={{ padding: '3px 9px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', textTransform: 'capitalize', background: tx.paymentfor === 'investment' ? 'rgba(0,200,150,0.1)' : 'rgba(59, 130, 246, 0.1)', color: tx.paymentfor === 'investment' ? '#00c896' : '#3b82f6' }}>
                         {tx.paymentfor}
@@ -147,7 +150,7 @@ export default function TransactionsPage() {
                       {tx.paymentfor === 'investment' && tx.screenshot ? (
                         <ImageModal src={tx.screenshot} />
                       ) : tx.paymentfor === 'withdrawal' && tx.walletAddress ? (
-                        <span style={{ color: '#555', fontSize: '11px', maxWidth: '100px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={tx.walletAddress}>{tx.walletAddress}</span>
+                        <span style={{ color: '#888', fontSize: '11px', maxWidth: '180px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={tx.walletAddress}>{tx.walletAddress}</span>
                       ) : (
                         <span style={{ color: '#333', fontSize: '12px' }}>—</span>
                       )}
