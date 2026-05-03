@@ -78,7 +78,7 @@ export async function PATCH(request) {
             amount: amount,
             paymentMethod: 'Admin Funding',
             plan: plan,
-            confirmed: 'true'
+            confirmed: 'approved'
           }])
       } catch (txError) {
         console.error('Failed to create transaction record:', txError)

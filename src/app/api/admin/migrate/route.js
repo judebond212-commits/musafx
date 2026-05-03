@@ -102,7 +102,7 @@ export async function POST(request) {
 
           // Map values
           const isWithdrawal = paymentfor.toLowerCase().includes('withdraw')
-          const status = (confirmed.toLowerCase() === 'confirmed' || confirmed.toLowerCase() === 'true') ? 'true' : 'false'
+          const status = (confirmed.toLowerCase() === 'confirmed' || confirmed.toLowerCase() === 'true') ? 'approved' : 'false'
 
           const { error } = await supabaseAdmin
             .from('transactions')

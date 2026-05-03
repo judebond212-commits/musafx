@@ -26,7 +26,7 @@ export default function TransactionsPage() {
 
   async function handleToggleConfirmed(tx) {
     setToggling(prev => ({ ...prev, [tx.id]: true }))
-    const newVal = tx.confirmed === 'approved' ? 'declined' : 'approved'
+    const newVal = (tx.confirmed === 'approved' || tx.confirmed === 'true') ? 'declined' : 'approved'
     try {
       const res = await fetch('/api/admin/transactions', {
         method: 'PATCH',
@@ -46,17 +46,17 @@ export default function TransactionsPage() {
       tx.email?.toLowerCase().includes(search.toLowerCase()) ||
       tx.paymentfor?.toLowerCase().includes(search.toLowerCase())
     const matchesFilter =
-      filter === 'all' ||
-      (filter === 'pending' && tx.confirmed !== 'approved' && tx.confirmed !== 'declined') ||
-      (filter === 'approved' && tx.confirmed === 'approved') ||
+      (filter === 'all' ||
+      (filter === 'pending' && tx.confirmed !== 'approved' && tx.confirmed !== 'declined' && tx.confirmed !== 'true') ||
+      (filter === 'approved' && (tx.confirmed === 'approved' || tx.confirmed === 'true')) ||
       (filter === 'declined' && tx.confirmed === 'declined') ||
       (filter === 'investment' && tx.paymentfor === 'investment') ||
       (filter === 'withdrawal' && tx.paymentfor === 'withdrawal')
     return matchesSearch && matchesFilter
   })
 
-  const totalConfirmed = transactions.filter(t => t.confirmed === 'approved').length
-  const totalPending = transactions.filter(t => t.confirmed !== 'approved' && t.confirmed !== 'declined').length
+  const totalConfirmed = transactions.filter(t => t.confirmed === 'approved' || t.confirmed === 'true').length
+  const totalPending = transactions.filter(t => t.confirmed !== 'approved' && t.confirmed !== 'declined' && t.confirmed !== 'true').length
   const totalVolume = transactions.reduce((s, t) => s + (parseFloat(t.amount) || 0), 0)
 
   return (
@@ -123,7 +123,7 @@ export default function TransactionsPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: '860px' }}>
               <thead>
                 <tr style={{ background: '#0d0d0d', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  {['#', 'User Info', 'Type', 'Date', 'Amount', 'Method', 'Proof/Wallet', 'Status', 'Actions'].map(h => (
+                  {['#', 'User Info', 'Type', 'Date', 'Amount', 'Method', 'Proof / Account', 'Status', 'Actions'].map(h => (
                     <th key={h} style={{ textAlign: 'left', padding: '12px 14px', color: '#555', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
@@ -150,14 +150,28 @@ export default function TransactionsPage() {
                       {tx.paymentfor === 'investment' && tx.screenshot ? (
                         <ImageModal src={tx.screenshot} />
                       ) : tx.paymentfor === 'withdrawal' && tx.walletAddress ? (
-                        <span style={{ color: '#888', fontSize: '11px', maxWidth: '180px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={tx.walletAddress}>{tx.walletAddress}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ color: '#fff', fontSize: '12px', fontWeight: '600', maxWidth: '140px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', background: 'rgba(59, 130, 246, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(59, 130, 246, 0.2)' }} title={tx.walletAddress}>
+                            {tx.walletAddress}
+                          </span>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(tx.walletAddress)
+                              toast.success('Account details copied!')
+                            }}
+                            title="Copy Account Number"
+                            style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}
+                          >
+                            <HiClipboardList size={14} />
+                          </button>
+                        </div>
                       ) : (
                         <span style={{ color: '#333', fontSize: '12px' }}>—</span>
                       )}
                     </td>
                     <td style={{ padding: '13px 14px' }}>
-                      <span style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', background: tx.confirmed === 'approved' ? 'rgba(0,200,150,0.1)' : (tx.confirmed === 'declined' ? 'rgba(255,85,85,0.1)' : 'rgba(96, 165, 250, 0.1)'), color: tx.confirmed === 'approved' ? '#00c896' : (tx.confirmed === 'declined' ? '#ff5555' : '#60a5fa'), border: `1px solid ${tx.confirmed === 'approved' ? 'rgba(0,200,150,0.25)' : (tx.confirmed === 'declined' ? 'rgba(255,85,85,0.25)' : 'rgba(96, 165, 250, 0.25)')}` }}>
-                        {tx.confirmed === 'approved' ? 'Approved' : (tx.confirmed === 'declined' ? 'Declined' : 'Pending')}
+                      <span style={{ padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: '600', background: (tx.confirmed === 'approved' || tx.confirmed === 'true') ? 'rgba(0,200,150,0.1)' : (tx.confirmed === 'declined' ? 'rgba(255,85,85,0.1)' : 'rgba(96, 165, 250, 0.1)'), color: (tx.confirmed === 'approved' || tx.confirmed === 'true') ? '#00c896' : (tx.confirmed === 'declined' ? '#ff5555' : '#60a5fa'), border: `1px solid ${(tx.confirmed === 'approved' || tx.confirmed === 'true') ? 'rgba(0,200,150,0.25)' : (tx.confirmed === 'declined' ? 'rgba(255,85,85,0.25)' : 'rgba(96, 165, 250, 0.25)')}` }}>
+                        {(tx.confirmed === 'approved' || tx.confirmed === 'true') ? 'Approved' : (tx.confirmed === 'declined' ? 'Declined' : 'Pending')}
                       </span>
                     </td>
                     <td style={{ padding: '13px 14px' }}>
@@ -173,7 +187,7 @@ export default function TransactionsPage() {
                           opacity: toggling[tx.id] ? 0.5 : 1,
                           transition: 'all 0.15s',
                         }}>
-                        {toggling[tx.id] ? '...' : tx.confirmed === 'approved' ? <><HiX size={12} /> Decline</> : <><HiCheck size={12} /> Approve</>}
+                        {toggling[tx.id] ? '...' : (tx.confirmed === 'approved' || tx.confirmed === 'true') ? <><HiX size={12} /> Decline</> : <><HiCheck size={12} /> Approve</>}
                       </button>
                     </td>
                   </tr>

@@ -148,11 +148,11 @@ export default async function DashboardHome() {
                     <td style={{ padding: '12px' }}>
                       <span style={{
                         padding: '3px 9px', borderRadius: '100px', fontSize: '11px', fontWeight: '600',
-                        background: tx.confirmed === 'true' ? 'rgba(0,200,150,0.1)' : 'rgba(59, 130, 246, 0.1)',
-                        color: tx.confirmed === 'true' ? '#00c896' : '#3b82f6',
-                        border: `1px solid ${tx.confirmed === 'true' ? 'rgba(0,200,150,0.25)' : 'rgba(59, 130, 246, 0.25)'}`,
+                        background: (tx.confirmed === 'approved' || tx.confirmed === 'true') ? 'rgba(0,200,150,0.1)' : (tx.confirmed === 'declined' ? 'rgba(255,85,85,0.1)' : 'rgba(59, 130, 246, 0.1)'),
+                        color: (tx.confirmed === 'approved' || tx.confirmed === 'true') ? '#00c896' : (tx.confirmed === 'declined' ? '#ff5555' : '#3b82f6'),
+                        border: `1px solid ${(tx.confirmed === 'approved' || tx.confirmed === 'true') ? 'rgba(0,200,150,0.25)' : (tx.confirmed === 'declined' ? 'rgba(255,85,85,0.25)' : 'rgba(59, 130, 246, 0.25)')}`,
                       }}>
-                        {tx.confirmed === 'true' ? 'Confirmed' : 'Pending'}
+                        {(tx.confirmed === 'approved' || tx.confirmed === 'true') ? 'Confirmed' : (tx.confirmed === 'declined' ? 'Declined' : 'Pending')}
                       </span>
                     </td>
                   </tr>

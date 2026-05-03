@@ -23,7 +23,7 @@ export default async function TransactionsPage() {
     .eq('email', session.Email)
     .order('"createdAt"', { ascending: false })
 
-  const confirmed = transactions?.filter(t => t.confirmed === 'true').length || 0
+  const confirmed = transactions?.filter(t => t.confirmed === 'approved' || t.confirmed === 'true').length || 0
   const pending = transactions?.filter(t => t.confirmed !== 'true').length || 0
   const totalInvested = transactions?.filter(t => t.paymentfor === 'investment').reduce((s, t) => s + t.amount, 0) || 0
   const totalWithdrawn = transactions?.filter(t => t.paymentfor === 'withdrawal').reduce((s, t) => s + t.amount, 0) || 0
@@ -105,11 +105,11 @@ export default async function TransactionsPage() {
                     <td style={{ padding: '14px 16px' }}>
                       <span style={{
                         padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: '600',
-                        background: tx.confirmed === 'true' ? 'rgba(0,200,150,0.1)' : 'rgba(59, 130, 246, 0.1)',
-                        color: tx.confirmed === 'true' ? '#00c896' : '#3b82f6',
-                        border: `1px solid ${tx.confirmed === 'true' ? 'rgba(0,200,150,0.25)' : 'rgba(59, 130, 246, 0.25)'}`,
+                        background: (tx.confirmed === 'approved' || tx.confirmed === 'true') ? 'rgba(0,200,150,0.1)' : (tx.confirmed === 'declined' ? 'rgba(255,85,85,0.1)' : 'rgba(59, 130, 246, 0.1)'),
+                        color: (tx.confirmed === 'approved' || tx.confirmed === 'true') ? '#00c896' : (tx.confirmed === 'declined' ? '#ff5555' : '#3b82f6'),
+                        border: `1px solid ${(tx.confirmed === 'approved' || tx.confirmed === 'true') ? 'rgba(0,200,150,0.25)' : (tx.confirmed === 'declined' ? 'rgba(255,85,85,0.25)' : 'rgba(59, 130, 246, 0.25)')}`,
                       }}>
-                        {tx.confirmed === 'true' ? '✓ Confirmed' : '⏳ Pending'}
+                        {(tx.confirmed === 'approved' || tx.confirmed === 'true') ? '✓ Confirmed' : (tx.confirmed === 'declined' ? '✖ Declined' : '⏳ Pending')}
                       </span>
                     </td>
                   </tr>
